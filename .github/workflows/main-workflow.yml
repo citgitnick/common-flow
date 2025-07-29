@@ -18,6 +18,8 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.commonChanged == 'true'
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Trigger Common Workflow
         run: |
@@ -26,6 +28,8 @@ jobs:
   trigger-A:
     needs: [detect-changes, trigger-common]
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Trigger A Workflow
         run: |
@@ -34,6 +38,8 @@ jobs:
   trigger-B:
     needs: [detect-changes, trigger-common]
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Trigger B Workflow
         run: |
@@ -42,6 +48,8 @@ jobs:
   trigger-C:
     needs: [detect-changes, trigger-common]
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Trigger C Workflow
         run: |
