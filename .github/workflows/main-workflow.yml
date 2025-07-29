@@ -26,6 +26,8 @@ jobs:
           gh workflow run common.yml --ref main --repo ${{ github.repository }}
 
   trigger-A:
+    if: |
+      always()
     needs: [detect-changes, trigger-common]
     runs-on: ubuntu-latest
     env:
@@ -35,7 +37,9 @@ jobs:
         run: |
           gh workflow run A.yml --ref main --repo ${{ github.repository }}
 
-  trigger-B:
+  trigger-B:  
+    if: |
+      always()
     needs: [detect-changes, trigger-common]
     runs-on: ubuntu-latest
     env:
@@ -46,6 +50,8 @@ jobs:
           gh workflow run B.yml --ref main --repo ${{ github.repository }}
 
   trigger-C:
+    if: |
+      always()
     needs: [detect-changes, trigger-common]
     runs-on: ubuntu-latest
     env:
