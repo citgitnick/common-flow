@@ -2,7 +2,9 @@ name: Main Workflow
 
 on:
   workflow_dispatch:
-
+  
+env:
+  GH_TOKEN: ${{ secrets.PAT_TRIGGER_WORKFLOW }}
 jobs:
   detect-changes:
     runs-on: ubuntu-latest
@@ -18,8 +20,6 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.commonChanged == 'true'
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.PAT_TRIGGER_WORKFLOW }}
     steps:
       - name: Trigger Common Workflow
         run: |
@@ -30,8 +30,6 @@ jobs:
       always()
     needs: [detect-changes, trigger-common]
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.PAT_TRIGGER_WORKFLOW }}
     steps:
       - name: Trigger A Workflow
         run: |
@@ -42,8 +40,6 @@ jobs:
       always()
     needs: [detect-changes, trigger-common]
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.PAT_TRIGGER_WORKFLOW }}
     steps:
       - name: Trigger B Workflow
         run: |
@@ -54,8 +50,6 @@ jobs:
       always()
     needs: [detect-changes, trigger-common]
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.PAT_TRIGGER_WORKFLOW }}
     steps:
       - name: Trigger C Workflow
         run: |
