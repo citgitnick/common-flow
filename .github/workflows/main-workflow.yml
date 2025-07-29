@@ -33,7 +33,9 @@ jobs:
     steps:
       - name: Trigger A Workflow
         run: |
-          gh workflow run A.yml --ref main --repo ${{ github.repository }}
+          gh workflow run A.yml \
+            --ref ${{ github.base_ref}} \
+            --repo ${{ github.repository }}
 
   trigger-B:  
     if: |
@@ -43,7 +45,9 @@ jobs:
     steps:
       - name: Trigger B Workflow
         run: |
-          gh workflow run B.yml --ref main --repo ${{ github.repository }}
+          gh workflow run B.yml \
+            --ref ${{ github.base_ref}} \
+            --repo ${{ github.repository }}
 
   trigger-C:
     if: |
