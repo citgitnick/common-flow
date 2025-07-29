@@ -12,7 +12,7 @@ jobs:
       - name: Fake detection for testing
         id: set
         run: |
-          echo "commonChanged=true" >> $GITHUB_OUTPUT
+          echo "commonChanged=false" >> $GITHUB_OUTPUT
 
   trigger-common:
     needs: detect-changes
