@@ -18,7 +18,7 @@ jobs:
       - name: Fake detection for testing
         id: set
         run: |
-          echo "commonChanged=false" >> $GITHUB_OUTPUT
+          echo "commonChanged=true" >> $GITHUB_OUTPUT
 
   trigger-common:
     needs: detect-changes
@@ -38,7 +38,7 @@ jobs:
       - name: Trigger A Workflow
         run: |
           gh workflow run A.yml \
-            --ref ${{ github.base_ref}} \
+            --ref ${{ github.ref_name}} \
             --repo ${{ github.repository }}
 
   trigger-B:  
@@ -50,7 +50,7 @@ jobs:
       - name: Trigger B Workflow
         run: |
           gh workflow run B.yml \
-            --ref ${{ github.base_ref}} \
+            --ref ${{ github.ref_name}} \
             --repo ${{ github.repository }}
 
   trigger-C:
