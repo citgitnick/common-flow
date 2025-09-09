@@ -28,6 +28,9 @@ jobs:
     if: needs.detect-changes.outputs.commonChanged == 'true'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
       - name: Trigger Common Workflow
         run: |
           gh workflow run common.yml --ref main --repo ${{ github.repository }}
