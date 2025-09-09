@@ -37,7 +37,7 @@ jobs:
 
       - name: Wait for completion
         id: wait
-        uses: ${{ github.repository }}/.github/workflows/wait-for-completion.yml
+        uses: ./.github/workflows/wait-for-completion.yml
         with:
           run_id: ${{ steps.trigger.outputs.run_id }}
           repository: ${{ github.repository }}
