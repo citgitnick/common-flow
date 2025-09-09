@@ -15,6 +15,9 @@ jobs:
     outputs:
       commonChanged: ${{ steps.set.outputs.commonChanged }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
       - name: Fake detection for testing
         id: set
         run: |
