@@ -129,7 +129,7 @@ jobs:
   trigger-B:  
     if: |
       always()
-    needs: [detect-changes, trigger-common]
+    needs: [detect-changes, trigger-A]
     runs-on: ubuntu-latest
     steps:
       - name: Trigger B Workflow
@@ -179,7 +179,7 @@ jobs:
   trigger-C:
     if: |
       always()
-    needs: [detect-changes, trigger-common]
+    needs: [detect-changes, trigger-B]
     runs-on: ubuntu-latest
     steps:
       - name: Trigger C Workflow
