@@ -83,6 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger A Workflow
+        id: trigger
         run: |
           gh workflow run A.yml \
             --ref ${{ github.ref_name}} \
@@ -133,6 +134,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger B Workflow
+        id: trigger
         run: |
           gh workflow run B.yml \
             --ref ${{ github.ref_name}} \
