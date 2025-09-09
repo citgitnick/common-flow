@@ -1,0 +1,44 @@
+name: Wait for Workflow Completion
+
+on:
+  workflow_call:
+    inputs:
+      run_id:
+        required: true
+        type: string
+      repository:
+        required: true
+        type: string
+
+    outputs:
+      status:
+        description: "Final status of the workflow"
+        value: ${{ jobs.wait.outputs.status }}
+
+jobs:
+  wait:
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.wait.outputs.status }}
+    steps:
+      - name: Wait for workflow completion
+        id: wait
+        run: |
+          RUN_ID=${{ inputs.run_id }}
+          REPO=${{ inputs.repository }}
+
+          while true; do
+            STATUS=$(gh run view "$RUN_ID" --repo "$REPO" --json status --jq '.status')
+            echo "Current status: $STATUS"
+            if [[ "$STATUS" == "completed" ]]; then
+              RESULT=$(gh run view "$RUN_ID" --repo "$REPO" --json conclusion --jq '.conclusion')
+              echo "Workflow concluded with: $RESULT"
+              echo "status=$RESULT" >> $GITHUB_OUTPUT
+              if [[ "$RESULT" != "success" ]]; then
+                echo "❌ Workflow failed"
+                exit 1
+              fi
+              break
+            fi
+            sleep 10
+          done
