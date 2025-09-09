@@ -1,0 +1,187 @@
+name: Main Workflow 4
+
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+  
+env:
+  GH_TOKEN: ${{ github.token }}
+  
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      commonChanged: ${{ steps.set.outputs.commonChanged }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Fake detection for testing
+        id: set
+        run: |
+          echo "commonChanged=true" >> $GITHUB_OUTPUT
+
+  trigger-common:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.commonChanged == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Trigger Common Workflow
+        id: trigger
+        run: |
+          gh workflow run common.yml \
+            --ref main \
+            --repo ${{ github.repository }}
+
+          # Wait for GitHub to register the new run 
+          sleep 10 
+          
+          RUN_ID=$(gh run list \
+          --workflow="${{ env.COMMON_SERVICE_WORKFLOW }}" \
+          --branch=${{ github.ref_name}} \
+          --repo ${{ github.repository }} \
+          --limit 1 \
+          --json databaseId \
+          --jq '.[0].databaseId') 
+          
+          echo "Triggered run ID: $RUN_ID" 
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for Product Service Workflow to complete
+        id: wait
+        run: |
+          while true; do
+            STATUS=$(gh run view ${{ steps.trigger.outputs.run_id }} \
+              --repo ${{ github.repository }} \
+              --json status --jq '.status')
+
+            echo "Current status: $STATUS"
+            if [[ "$STATUS" == "completed" ]]; then
+              RESULT=$(gh run view ${{ steps.trigger.outputs.run_id }} \
+                --repo ${{ github.repository }} \
+                --json conclusion --jq '.conclusion')
+              echo "Workflow concluded with: $RESULT"
+              echo "status=$RESULT" >> "$GITHUB_OUTPUT"
+              if [[ "$RESULT" != "success" ]]; then
+                echo "❌ Workflow failed"
+                exit 1
+              fi
+              break
+            fi
+            sleep 10
+          done  
+
+  trigger-A:
+    if: |
+      always()
+    needs: [detect-changes, trigger-common]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger A Workflow
+        run: |
+          gh workflow run A.yml \
+            --ref ${{ github.ref_name}} \
+            --repo ${{ github.repository }}
+
+          # Wait for GitHub to register the new run 
+          sleep 10 
+          
+          RUN_ID=$(gh run list \
+          --workflow="${{ env.COMMON_SERVICE_WORKFLOW }}" \
+          --branch=${{ github.ref_name}} \
+          --repo ${{ github.repository }} \
+          --limit 1 \
+          --json databaseId \
+          --jq '.[0].databaseId') 
+          
+          echo "Triggered run ID: $RUN_ID" 
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for Product Service Workflow to complete
+        id: wait
+        run: |
+          while true; do
+            STATUS=$(gh run view ${{ steps.trigger.outputs.run_id }} \
+              --repo ${{ github.repository }} \
+              --json status --jq '.status')
+
+            echo "Current status: $STATUS"
+            if [[ "$STATUS" == "completed" ]]; then
+              RESULT=$(gh run view ${{ steps.trigger.outputs.run_id }} \
+                --repo ${{ github.repository }} \
+                --json conclusion --jq '.conclusion')
+              echo "Workflow concluded with: $RESULT"
+              echo "status=$RESULT" >> "$GITHUB_OUTPUT"
+              if [[ "$RESULT" != "success" ]]; then
+                echo "❌ Workflow failed"
+                exit 1
+              fi
+              break
+            fi
+            sleep 10
+          done  
+
+  trigger-B:  
+    if: |
+      always()
+    needs: [detect-changes, trigger-common]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger B Workflow
+        run: |
+          gh workflow run B.yml \
+            --ref ${{ github.ref_name}} \
+            --repo ${{ github.repository }}
+
+          # Wait for GitHub to register the new run 
+          sleep 10 
+          
+          RUN_ID=$(gh run list \
+          --workflow="${{ env.COMMON_SERVICE_WORKFLOW }}" \
+          --branch=${{ github.ref_name}} \
+          --repo ${{ github.repository }} \
+          --limit 1 \
+          --json databaseId \
+          --jq '.[0].databaseId') 
+          
+          echo "Triggered run ID: $RUN_ID" 
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Wait for Product Service Workflow to complete
+        id: wait
+        run: |
+          while true; do
+            STATUS=$(gh run view ${{ steps.trigger.outputs.run_id }} \
+              --repo ${{ github.repository }} \
+              --json status --jq '.status')
+
+            echo "Current status: $STATUS"
+            if [[ "$STATUS" == "completed" ]]; then
+              RESULT=$(gh run view ${{ steps.trigger.outputs.run_id }} \
+                --repo ${{ github.repository }} \
+                --json conclusion --jq '.conclusion')
+              echo "Workflow concluded with: $RESULT"
+              echo "status=$RESULT" >> "$GITHUB_OUTPUT"
+              if [[ "$RESULT" != "success" ]]; then
+                echo "❌ Workflow failed"
+                exit 1
+              fi
+              break
+            fi
+            sleep 10
+          done  
+
+  trigger-C:
+    if: |
+      always()
+    needs: [detect-changes, trigger-common]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger C Workflow
+        run: |
+          gh workflow run C.yml --ref main --repo ${{ github.repository }}
