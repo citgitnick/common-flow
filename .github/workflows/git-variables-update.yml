@@ -36,6 +36,7 @@ jobs:
         run: |
           echo "Deployment step here..."
           # ./scripts/deploy.sh
+          sleep 30
 
       - name: Set status = success
         if: success()
