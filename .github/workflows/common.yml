@@ -6,6 +6,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      VAR_NAME: DEPLOY_STATUS_PRODUCT
+      
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
