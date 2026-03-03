@@ -21,7 +21,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       decision: ${{ steps.evaluate.outputs.decision }}
-      app_token: ${{ steps.app-token.outputs.token }}
 
     steps:
       - name: Generate GitHub App token
@@ -139,6 +138,15 @@ jobs:
     needs: evaluate
     if: needs.evaluate.outputs.decision == 'trigger_tests'
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.DEPLOY_APP_ID }}
+          private-key: ${{ secrets.DEPLOY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: common-flow
+          
       # - name: Dispatch test automation pipeline
       #   run: |
       #     HTTP_STATUS=$(curl -s -o /tmp/response.json -w "%{http_code}" \
@@ -167,4 +175,4 @@ jobs:
             gh variable set $VAR --body "not_triggered" --repo ${{ github.repository }}
           done
         env:
-          GH_TOKEN: ${{ needs.evaluate.outputs.app_token }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
