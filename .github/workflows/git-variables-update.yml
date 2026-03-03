@@ -1,9 +1,18 @@
 name: Deploy test
 
 on:
-  push:
+  # push:
+  #   branches: main
+  # workflow_dispatch:
+  workflow_run:
+    workflows:
+      - "Common Workflow"
+    types: completed
     branches: main
-  workflow_dispatch:
+
+concurrency:
+  group: orchestrator-${{ github.event.workflow_run.head_sha }}
+  cancel-in-progress: false
 
 jobs:
   deploy:
