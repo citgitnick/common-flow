@@ -24,6 +24,7 @@ jobs:
           app-id: ${{ vars.DEPLOY_APP_ID }}
           private-key: ${{ secrets.DEPLOY_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
+          repositories: common-flow
 
       - name: Set status = pending
         run: gh variable set $VAR_NAME --body "pending" --repo ${{ github.repository }}
