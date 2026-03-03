@@ -13,6 +13,10 @@ concurrency:
   group: orchestrator-${{ github.event.workflow_run.head_sha }}
   cancel-in-progress: false
 
+permissions:
+  actions: write
+  contents: read
+
 jobs:
   # ══════════════════════════════════════════════════════════════════════
   # JOB 1: Read all variables and decide what to do
@@ -128,6 +132,14 @@ jobs:
           echo "No triggered deployment status found."
           echo "No action taken."
           exit 0
+      
+      - name: Cancel this workflow
+        run: |
+          gh api \
+            -X POST \
+            repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel
+        env:
+          GH_TOKEN: ${{ github.token }}
 
   # ══════════════════════════════════════════════════════════════════════
   # JOB 5: All succeeded — trigger tests then reset variables
