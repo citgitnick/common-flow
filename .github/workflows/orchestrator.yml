@@ -21,12 +21,22 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       decision: ${{ steps.evaluate.outputs.decision }}
+      app_token: ${{ steps.app-token.outputs.token }}
 
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.DEPLOY_APP_ID }}
+          private-key: ${{ secrets.DEPLOY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: common-flow
+          
       - name: Read all service statuses
         id: evaluate
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
           BULK=$(gh variable get TEST_VAR --repo ${{ github.repository }} --json value -q .value 2>/dev/null || echo "not_triggered")
           COMMON=$(gh variable get DEPLOY_STATUS_COMMON --repo ${{ github.repository }} --json value -q .value 2>/dev/null || echo "not_triggered")
@@ -129,15 +139,6 @@ jobs:
     needs: evaluate
     if: needs.evaluate.outputs.decision == 'trigger_tests'
     steps:
-      - name: Generate GitHub App token
-        id: app-token
-        uses: actions/create-github-app-token@v1
-        with:
-          app-id: ${{ secrets.TEST_TRIGGER_APP_ID }}
-          private-key: ${{ secrets.TEST_TRIGGER_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: ${{ vars.TEST_AUTOMATION_REPO_NAME }}
-
       # - name: Dispatch test automation pipeline
       #   run: |
       #     HTTP_STATUS=$(curl -s -o /tmp/response.json -w "%{http_code}" \
@@ -166,4 +167,4 @@ jobs:
             gh variable set $VAR --body "not_triggered" --repo ${{ github.repository }}
           done
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_TOKEN: ${{ needs.evaluate.outputs.app_token }}
