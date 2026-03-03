@@ -163,7 +163,7 @@ jobs:
       # when triggered via workflow_run from a different workflow context
       - name: Reset all status variables for next deployment
         run: |
-          for VAR in DEPLOY_STATUS_BULK_UPLOAD DEPLOY_STATUS_COMMON DEPLOY_STATUS_PRODUCT DEPLOY_STATUS_TRANSACTION; do
+          for VAR in TEST_VAR DEPLOY_STATUS_COMMON DEPLOY_STATUS_PRODUCT DEPLOY_STATUS_TRANSACTION; do
             gh variable set $VAR --body "not_triggered" --repo ${{ github.repository }}
           done
         env:
