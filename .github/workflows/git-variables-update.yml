@@ -26,16 +26,22 @@ jobs:
           owner: ${{ github.repository_owner }}
           repositories: common-flow
           
+      # - name: Set status = pending
+      #   env:
+      #     GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      #   run: |
+      #     curl -L -X PATCH \
+      #     -H "Accept: application/vnd.github+json" \
+      #     -H "Authorization: Bearer ${{ env.GH_TOKEN }}" \
+      #     -H "X-GitHub-Api-Version: 2022-11-28" \
+      #     https://api.github.com/${{github.repository}} \
+      #     -d '{"name":"TEST_VAR","value":"pending"}'
+
       - name: Set status = pending
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          curl -L -X PATCH \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${{ env.GH_TOKEN }}" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          https://api.github.com/${{github.repository}} \
-          -d '{"name":"TEST_VAR","value":"pending"}'
+          gh variable set TEST_VAR --body "Set from workflow"
 
       - name: Deploy service
         run: |
