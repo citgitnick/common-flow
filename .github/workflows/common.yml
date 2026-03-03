@@ -24,7 +24,7 @@ jobs:
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          gh variable set TEST_VAR --body "pending"
+          gh variable set DEPLOY_STATUS_PRODUCT --body "pending"
 
       - name: Deploy service
         run: |
