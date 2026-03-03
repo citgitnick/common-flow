@@ -172,7 +172,17 @@ jobs:
       - name: Reset all status variables for next deployment
         run: |
           for VAR in TEST_VAR DEPLOY_STATUS_COMMON DEPLOY_STATUS_PRODUCT DEPLOY_STATUS_TRANSACTION; do
-            gh variable set $VAR --body "not_triggered" --repo ${{ github.repository }}
+            # gh variable set $VAR --body "not_triggered" --repo ${{ github.repository }}
+            CURRENT=$(gh variable get $VAR \
+              --repo ${{ github.repository }} \
+              --json value -q .value 2>/dev/null || echo "")
+      
+            if [ "$CURRENT" != "not_triggered" ]; then
+              echo "Updating $VAR (current: $CURRENT)"
+              gh variable set $VAR --body "not_triggered" --repo ${{ github.repository }}
+            else
+              echo "Skipping $VAR (already not_triggered)"
+            fi
           done
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
