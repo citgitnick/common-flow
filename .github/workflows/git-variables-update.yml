@@ -1,0 +1,48 @@
+name: Deploy test
+
+on:
+  push:
+    branches: main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy bulk-upload-service
+    runs-on: ubuntu-latest
+    env:
+      VAR_NAME: TEST_VAR
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # GitHub App token — needed for gh variable set (GITHUB_TOKEN cannot write variables)
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.DEPLOY_APP_ID }}
+          private-key: ${{ secrets.DEPLOY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Set status = pending
+        run: gh variable set $VAR_NAME --body "pending" --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Deploy service
+        run: |
+          echo "Deployment step here..."
+          # ./scripts/deploy.sh
+
+      - name: Set status = success
+        if: success()
+        run: gh variable set $VAR_NAME --body "success" --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Set status = failed
+        if: failure()
+        run: gh variable set $VAR_NAME --body "failed" --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
