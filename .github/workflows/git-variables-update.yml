@@ -3,16 +3,7 @@ name: Deploy test
 on:
   # push:
   #   branches: main
-  # workflow_dispatch:
-  workflow_run:
-    workflows:
-      - "Common Workflow"
-    types: completed
-    branches: main
-
-concurrency:
-  group: orchestrator-${{ github.event.workflow_run.head_sha }}
-  cancel-in-progress: false
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -34,23 +25,12 @@ jobs:
           private-key: ${{ secrets.DEPLOY_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: common-flow
-          
-      # - name: Set status = pending
-      #   env:
-      #     GH_TOKEN: ${{ steps.app-token.outputs.token }}
-      #   run: |
-      #     curl -L -X PATCH \
-      #     -H "Accept: application/vnd.github+json" \
-      #     -H "Authorization: Bearer ${{ env.GH_TOKEN }}" \
-      #     -H "X-GitHub-Api-Version: 2022-11-28" \
-      #     https://api.github.com/${{github.repository}} \
-      #     -d '{"name":"TEST_VAR","value":"pending"}'
 
       - name: Set status = pending
         env:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
         run: |
-          gh variable set TEST_VAR --body "Set from workflow"
+          gh variable set TEST_VAR --body "pending"
 
       - name: Deploy service
         run: |
