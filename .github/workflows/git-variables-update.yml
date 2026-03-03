@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy bulk-upload-service
+    name: Deploy test
     runs-on: ubuntu-latest
     env:
       VAR_NAME: TEST_VAR
@@ -21,7 +21,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v1
         with:
-          app-id: ${{ secrets.DEPLOY_APP_ID }}
+          app-id: ${{ vars.DEPLOY_APP_ID }}
           private-key: ${{ secrets.DEPLOY_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
 
