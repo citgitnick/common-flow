@@ -28,7 +28,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          BULK=$(gh variable get DEPLOY_STATUS_BULK_UPLOAD --repo ${{ github.repository }} --json value -q .value 2>/dev/null || echo "not_triggered")
+          BULK=$(gh variable get TEST_VAR --repo ${{ github.repository }} --json value -q .value 2>/dev/null || echo "not_triggered")
           COMMON=$(gh variable get DEPLOY_STATUS_COMMON --repo ${{ github.repository }} --json value -q .value 2>/dev/null || echo "not_triggered")
           PRODUCT=$(gh variable get DEPLOY_STATUS_PRODUCT --repo ${{ github.repository }} --json value -q .value 2>/dev/null || echo "not_triggered")
           TRANS=$(gh variable get DEPLOY_STATUS_TRANSACTION --repo ${{ github.repository }} --json value -q .value 2>/dev/null || echo "not_triggered")
