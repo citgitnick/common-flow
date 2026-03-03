@@ -7,6 +7,7 @@ on:
       - "Deploy test"
     types: completed
     branches: main
+  workflow_dispatch:
 
 concurrency:
   group: orchestrator-${{ github.event.workflow_run.head_sha }}
