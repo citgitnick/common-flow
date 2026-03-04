@@ -11,8 +11,8 @@ on:
 
 concurrency:
   group: orchestrator-${{ github.event.workflow_run.head_sha }}
-  cancel-in-progress: false
-  # cancel-in-progress: true
+  # cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   actions: write
