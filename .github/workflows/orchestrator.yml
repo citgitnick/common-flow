@@ -11,7 +11,8 @@ on:
 
 concurrency:
   group: orchestrator-${{ github.event.workflow_run.head_sha }}
-  cancel-in-progress: false
+  # cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   actions: write
@@ -22,6 +23,7 @@ jobs:
   # JOB 1: Read all variables and decide what to do
   # ══════════════════════════════════════════════════════════════════════
   evaluate:
+    if: ${{ github.event.workflow_run.conclusion == success()}}
     name: Evaluate Deployment State
     runs-on: ubuntu-latest
     outputs:
