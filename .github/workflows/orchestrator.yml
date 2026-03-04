@@ -23,7 +23,6 @@ jobs:
   # JOB 1: Read all variables and decide what to do
   # ══════════════════════════════════════════════════════════════════════
   evaluate:
-    if: ${{ github.event.workflow_run.conclusion == success()}}
     name: Evaluate Deployment State
     runs-on: ubuntu-latest
     outputs:
