@@ -1,0 +1,35 @@
+name: Set Deploy Status
+
+on:
+  workflow_call:
+    inputs:
+      var-name:
+        description: 'GitHub Variable name to update'
+        required: true
+        type: string
+      status:
+        description: 'Status value: pending | success | failed'
+        required: true
+        type: string
+
+jobs:
+  set-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.DEPLOY_APP_ID }}
+          private-key: ${{ secrets.DEPLOY_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+
+      - name: Set variable status
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          gh variable set ${{ inputs.var-name }} \
+            --body "${{ inputs.status }}" \
+            --repo ${{ github.repository }}
+          echo "Set ${{ inputs.var-name }} = ${{ inputs.status }}"
