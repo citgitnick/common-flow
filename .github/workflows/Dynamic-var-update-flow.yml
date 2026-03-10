@@ -1,0 +1,15 @@
+name: Use reusable flow
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  set-final-status:
+    name: Set deployment final status
+    uses: ./.github/workflows/Deployment-state-update.yml
+    with:
+      var-name: DEPLOY_STATUS_PRODUCT
+      status: success
+    secrets: inherit
