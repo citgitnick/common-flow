@@ -1,4 +1,4 @@
-name: orchestrator flow
+name: orchestrator flow v2
 
 on:
   workflow_run:
