@@ -49,7 +49,7 @@ jobs:
 
           # Fetch all workflow runs for this exact SHA
           RUNS=$(gh api "repos/$REPO/actions/runs?head_sha=$SHA&per_page=50" \
-            --jq '.workflow_runs[] | select(.name) | 
+            --jq '.workflow_runs[] | select(.name) and (.name != "orchestrator flow v2") | 
             {name: .name, status: .status, conclusion: .conclusion}')
 
           echo "Runs found for SHA $SHA:"
