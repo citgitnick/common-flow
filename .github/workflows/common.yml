@@ -34,7 +34,7 @@ jobs:
       - name: Deploy service
         run: |
           echo "Deployment step here..."
-          # ./scripts/deploy.sh
+          # ./scripts/deploy.sh 
           sleep 30
 
       # - name: Set status = success
