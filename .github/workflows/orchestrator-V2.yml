@@ -47,7 +47,8 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           SHA: ${{ github.event.workflow_run.head_sha }}
           REPO: ${{ github.repository }}
-          ORCHESTRATOR_RUN_ID: ${{ github.run_id }}
+          # ORCHESTRATOR_RUN_ID: ${{ github.run_id }}
+          ORCHESTRATOR_NAME: ${{ github.workflow }}
         run: |
           echo "Evaluating SHA: $SHA"
 
@@ -56,12 +57,18 @@ jobs:
           #   --jq '.workflow_runs[] | select((.name) and (.name != "orchestrator flow v2")) | 
           #   {name: .name, status: .status, conclusion: .conclusion, attempt: .run_attempt}')
 
-          RUNS=$(gh api "repos/$REPO/actions/runs?head_sha=$SHA&per_page=50" \
-            | jq -c --argjson exclude_id "$ORCHESTRATOR_RUN_ID" \
-            '[.workflow_runs[] | select(
-              (.id != $exclude_id) and
-              (.name)
-            ) | {name: .name, status: .status, conclusion: .conclusion, attempt: .run_attempt}]')
+          # RUNS=$(gh api "repos/$REPO/actions/runs?head_sha=$SHA&per_page=50" \
+          #   | jq -c --argjson exclude_id "$ORCHESTRATOR_RUN_ID" \
+          #   '[.workflow_runs[] | select(
+          #     (.id != $exclude_id) and
+          #     (.name)
+          #   ) | {name: .name, status: .status, conclusion: .conclusion, attempt: .run_attempt}]')
+
+            RUNS=$(gh api "repos/$REPO/actions/runs?head_sha=$SHA&per_page=50" \
+                | jq -c --arg orchestrator_name "$ORCHESTRATOR_NAME" \
+                '[.workflow_runs[] | select(
+                  .name != $orchestrator_name
+                ) | {name: .name, status: .status, conclusion: .conclusion, attempt: .run_attempt}]'          
 
           echo "Runs found for SHA $SHA:"
           echo "$RUNS" | jq .
