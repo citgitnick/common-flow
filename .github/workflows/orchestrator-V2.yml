@@ -60,7 +60,7 @@ jobs:
             | jq --argjson exclude_id "$ORCHESTRATOR_RUN_ID" \
             '[.workflow_runs[] | select(
               (.id != $exclude_id) and
-              (.name))
+              (.name)
             ) | {name: .name, status: .status, conclusion: .conclusion, attempt: .run_attempt}]')
 
           echo "Runs found for SHA $SHA:"
