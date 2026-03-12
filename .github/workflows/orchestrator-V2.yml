@@ -17,6 +17,7 @@ concurrency:
 permissions:
   actions: write
   contents: read
+  statuses: write
 
 jobs:
   evaluate:
@@ -172,7 +173,7 @@ jobs:
       - name: Check trigger lock
         id: lock
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           EXISTING=$(gh api "repos/${{ github.repository }}/statuses/$SHA" \
