@@ -167,8 +167,34 @@ jobs:
           private-key: ${{ secrets.DEPLOY_APP_PRIVATE_KEY }}
           owner: ${{ github.repository_owner }}
           repositories: common-flow
+
+      # ── Check if tests already triggered for this SHA ──────────────
+      - name: Check trigger lock
+        id: lock
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          EXISTING=$(gh api "repos/${{ github.repository }}/statuses/$SHA" \
+            | jq '[.[] | select(.context == "qa/test-trigger-lock")] | length')
+
+          echo "Existing trigger locks: $EXISTING"
+
+          if [ "$EXISTING" -gt 0 ]; then
+            echo "Tests already triggered for SHA $SHA by a previous orchestrator instance."
+            echo "acquired=false" >> $GITHUB_OUTPUT
+          else
+            # Atomically set the lock before triggering
+            gh api "repos/${{ github.repository }}/statuses/$SHA" \
+              -X POST \
+              -f state="success" \
+              -f context="qa/test-trigger-lock" \
+              -f description="Test automation triggered by orchestrator run ${{ github.run_id }}"
+            echo "acquired=true" >> $GITHUB_OUTPUT
+          fi
           
       # - name: Dispatch test automation pipeline
+      #   if: steps.lock.outputs.acquired == 'true'
       #   run: |
       #     HTTP_STATUS=$(curl -s -o /tmp/response.json -w "%{http_code}" \
       #       -X POST \
@@ -187,7 +213,11 @@ jobs:
       #     fi
 
       #     echo "Test automation pipeline triggered successfully."
+        # env:
+        #   GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
-
-        env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+      - name: Skip — tests already triggered
+        if: steps.lock.outputs.acquired == 'false'
+        run: |
+          echo "Tests already triggered for this SHA by a previous orchestrator instance."
+          echo "Skipping to avoid duplicate test run."
