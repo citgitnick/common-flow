@@ -57,19 +57,19 @@ jobs:
           #   {name: .name, status: .status, conclusion: .conclusion, attempt: .run_attempt}')
 
           RUNS=$(gh api "repos/$REPO/actions/runs?head_sha=$SHA&per_page=50" \
-            | jq --argjson exclude_id "$ORCHESTRATOR_RUN_ID" \
+            | jq -c --argjson exclude_id "$ORCHESTRATOR_RUN_ID" \
             '[.workflow_runs[] | select(
               (.id != $exclude_id) and
               (.name)
             ) | {name: .name, status: .status, conclusion: .conclusion, attempt: .run_attempt}]')
 
           echo "Runs found for SHA $SHA:"
-          echo "$RUNS"
+          echo "$RUNS" | jq .
 
-          TOTAL=$(echo "$RUNS"    | jq -s 'length')
-          IN_PROGRESS=$(echo "$RUNS" | jq -s '[.[] | select(.status != "completed")] | length')
-          FAILED=$(echo "$RUNS"   | jq -s '[.[] | select(.conclusion == "failure")] | length')
-          SUCCESS=$(echo "$RUNS"  | jq -s '[.[] | select(.conclusion == "success")] | length')
+          TOTAL=$(echo "$RUNS"    | jq 'length')
+          IN_PROGRESS=$(echo "$RUNS" | jq '[.[] | select(.status != "completed")] | length')
+          FAILED=$(echo "$RUNS"   | jq '[.[] | select(.conclusion == "failure")] | length')
+          SUCCESS=$(echo "$RUNS"  | jq '[.[] | select(.conclusion == "success")] | length')
 
           echo "---"
           echo "Total   : $TOTAL"
