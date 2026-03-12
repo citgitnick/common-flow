@@ -59,7 +59,7 @@ jobs:
           RUNS=$(gh api "repos/$REPO/actions/runs?head_sha=$SHA&per_page=50" \
             | jq --argjson exclude_id "$ORCHESTRATOR_RUN_ID" \
             '[.workflow_runs[] | select(
-              .id != $exclude_id and
+              (.id != $exclude_id) and
               (.name))
             ) | {name: .name, status: .status, conclusion: .conclusion, attempt: .run_attempt}]')
 
