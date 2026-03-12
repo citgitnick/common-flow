@@ -26,6 +26,9 @@ jobs:
       decision: ${{ steps.evaluate.outputs.decision }}
 
     steps:
+      - name: Check gh CLI version
+        run: gh --version
+        
       - name: Wait for API to reflect completed status
         run: sleep 10
         
@@ -54,7 +57,7 @@ jobs:
           #   {name: .name, status: .status, conclusion: .conclusion, attempt: .run_attempt}')
 
           RUNS=$(gh api "repos/$REPO/actions/runs?head_sha=$SHA&per_page=50" \
-            --jq --argjson exclude_id "$ORCHESTRATOR_RUN_ID" \
+            jq --argjson exclude_id "$ORCHESTRATOR_RUN_ID" \
             '[.workflow_runs[] | select(
               .id != $exclude_id and
               (.name))
