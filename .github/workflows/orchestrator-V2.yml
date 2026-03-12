@@ -68,7 +68,7 @@ jobs:
                 | jq -c --arg orchestrator_name "$ORCHESTRATOR_NAME" \
                 '[.workflow_runs[] | select(
                   .name != $orchestrator_name
-                ) | {name: .name, status: .status, conclusion: .conclusion, attempt: .run_attempt}]'          
+                ) | {name: .name, status: .status, conclusion: .conclusion, attempt: .run_attempt}]')          
 
           echo "Runs found for SHA $SHA:"
           echo "$RUNS" | jq .
