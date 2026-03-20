@@ -166,7 +166,7 @@ jobs:
 
         echo "Report URL: $REPORT_URL"
 
-        curl -X POST "${{ secrets.TEAMS_WEBHOOK_URL }}" \
+        curl -X POST "${{ vars.TEAMS_WEBHOOK_URL }}" \
           -H "Content-Type: application/json" \
           -d "{
             \"@type\": \"MessageCard\",
