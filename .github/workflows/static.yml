@@ -2,7 +2,7 @@ name: Deploy Test Reports to GitHub Pages
 
 on:
   push:
-    branches: ["main"]   # change if needed
+    branches: ["gh-pages"]   # change if needed
   workflow_dispatch:
 
 permissions:
