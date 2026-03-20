@@ -31,14 +31,36 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      - name: Prepare Pages content
+        run: |
+          mkdir -p pages
+      
+          # Copy all reports
+          cp bin/Debug/net8.0/Reports/*.html pages/ || true
+
+      - name: Create index.html
+        run: |
+          echo "<html><body><h2>Test Reports</h2><ul>" > pages/index.html
+      
+          for file in pages/*.html; do
+            fname=$(basename "$file")
+            if [ "$fname" != "index.html" ]; then
+              echo "<li><a href=\"$fname\">$fname</a></li>" >> pages/index.html
+            fi
+          done
+      
+          echo "</ul></body></html>" >> pages/index.html
+          
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
-          path: |
-            bin/Debug/net8.0/Reports/*.html
+          path: pages
+          
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
