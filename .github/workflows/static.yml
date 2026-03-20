@@ -1,175 +1,185 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: Deploy Test Reports to GitHub Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
-    branches: ["gh-pages"]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: ["main"]   # change if needed
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
+    runs-on: ubuntu-latest
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+    # Checkout repo
+    - name: Checkout
+      uses: actions/checkout@v4
 
-      - name: Prepare Pages content
-        run: |
-          mkdir -p pages
-      
-          # Copy all reports
-          # cp bin/Debug/net8.0/Reports/*.html pages/ || true
+    # (Your test execution step goes here)
+    - name: Run Tests
+      run: |
+        echo "Run your tests here"
+        # Example:
+        # dotnet test
+        # or playwright test
 
-          i=1
-          for file in bin/Debug/net8.0/Reports/*.html; do
-            newname="Run-$i.html"
-            cp "$file" "pages/$newname"
-            i=$((i+1))
-          done
+    # Debug (optional)
+    - name: Verify report exists
+      run: |
+        ls -R bin/Debug/net8.0/Reports || true
 
-      # - name: Create index.html
-      #   run: |
-      #     echo "<html><body><h2>Test Reports</h2><ul>" > pages/index.html
-      
-      #     for file in pages/*.html; do
-      #       fname=$(basename "$file")
-      #       if [ "$fname" != "index.html" ]; then
-      #         echo "<li><a href=\"$fname\">$fname</a></li>" >> pages/index.html
-      #       fi
-      #     done
-      
-      #     echo "</ul></body></html>" >> pages/index.html
+    # Get previous Pages content
+    - name: Download existing Pages content
+      run: |
+        git clone --depth=1 --branch=gh-pages https://github.com/${{ github.repository }} old-pages || true
+        mkdir -p pages
+        cp -r old-pages/* pages/ || true
 
-      - name: Create styled index.html
-        run: |
-          echo '<!DOCTYPE html>
-          <html>
-          <head>
-            <meta charset="UTF-8">
-            <title>Test Execution Reports</title>
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                background: #f4f6f8;
-                margin: 0;
-                padding: 20px;
-              }
-              h1 {
-                text-align: center;
-                color: #333;
-              }
-              .container {
-                max-width: 800px;
-                margin: auto;
-              }
-              .card {
-                background: #ffffff;
-                padding: 15px 20px;
-                margin: 10px 0;
-                border-radius: 10px;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-              }
-              .card:hover {
-                transform: scale(1.01);
-                transition: 0.2s;
-              }
-              .btn {
-                background: #0078D4;
-                color: white;
-                padding: 8px 12px;
-                text-decoration: none;
-                border-radius: 6px;
-                font-size: 14px;
-              }
-              .btn:hover {
-                background: #005ea6;
-              }
-              .footer {
-                text-align: center;
-                margin-top: 20px;
-                font-size: 12px;
-                color: #777;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <h1>Test Execution Reports</h1>
-              <div id="report-list">' > pages/index.html
-      
-          for file in $(ls -t pages/*.html); do
-            fname=$(basename "$file")
-            if [ "$fname" != "index.html" ]; then
-              echo "<div class=\"card\">
-                      <div>$fname</div>
-                      <a class=\"btn\" href=\"$fname\" target=\"_blank\">View Report</a>
-                    </div>" >> pages/index.html
-            fi
-          done
-      
-          echo '</div>
-              <div class="footer">
-                Generated by GitHub Actions
-              </div>
+    # Add current run
+    - name: Add current run reports
+      run: |
+        RUN_ID=${{ github.run_id }}
+        mkdir -p pages/$RUN_ID
+        cp -r bin/Debug/net8.0/Reports/* pages/$RUN_ID/
+
+    # Keep only last 5 runs
+    - name: Keep last 5 runs
+      run: |
+        cd pages
+        ls -dt */ | tail -n +6 | xargs rm -rf || true
+
+    # Create index.html
+    - name: Create index.html
+      run: |
+        echo '<!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <title>Test Execution Reports</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              background: #f4f6f8;
+              margin: 0;
+              padding: 20px;
+            }
+            h1 {
+              text-align: center;
+              color: #333;
+            }
+            .container {
+              max-width: 800px;
+              margin: auto;
+            }
+            .card {
+              background: #ffffff;
+              padding: 15px 20px;
+              margin: 10px 0;
+              border-radius: 10px;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .card:hover {
+              transform: scale(1.01);
+              transition: 0.2s;
+            }
+            .btn {
+              background: #0078D4;
+              color: white;
+              padding: 8px 12px;
+              text-decoration: none;
+              border-radius: 6px;
+              font-size: 14px;
+            }
+            .btn:hover {
+              background: #005ea6;
+            }
+            .footer {
+              text-align: center;
+              margin-top: 20px;
+              font-size: 12px;
+              color: #777;
+            }
+          </style>
+
+          <script>
+            function openAllReports() {
+              const links = document.querySelectorAll(".report-link");
+              links.forEach(link => {
+                window.open(link.href, "_blank");
+              });
+            }
+          </script>
+        </head>
+        <body>
+          <div class="container">
+            <h1>🚀 Test Execution Reports</h1>
+
+            <button class="btn" onclick="openAllReports()">Open All Reports</button>
+        ' > pages/index.html
+
+        for dir in $(ls -dt pages/*/); do
+          name=$(basename "$dir")
+          echo "<div class=\"card\">
+                  <div>Run: $name</div>
+                  <a class=\"btn report-link\" href=\"$name/index.html\" target=\"_blank\" rel=\"noopener noreferrer\">View Report</a>
+                </div>" >> pages/index.html
+        done
+
+        echo '
+            <div class="footer">
+              Generated by GitHub Actions
             </div>
-          </body>
-          </html>' >> pages/index.html
-          
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: pages
-          
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          </div>
+        </body>
+        </html>' >> pages/index.html
 
-      - name: Send Teams Notification
-        run: |
-          REPORT_URL="${{ steps.deployment.outputs.page_url }}"
-      
-          echo "Report URL: $REPORT_URL"
-      
-          curl -X POST "${{ vars.TEAMS_WEBHOOK_URL }}" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"@type\": \"MessageCard\",
-              \"@context\": \"http://schema.org/extensions\",
-              \"summary\": \"Test Report\",
-              \"themeColor\": \"0078D7\",
-              \"title\": \"Test Execution Completed\",
-              \"potentialAction\": [{
-                \"@type\": \"OpenUri\",
-                \"name\": \"View Report\",
-                \"targets\": [{
-                  \"os\": \"default\",
-                  \"uri\": \"$REPORT_URL\"
-                }]
+    # Upload full pages folder
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: pages
+
+    # Deploy
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+    # Send Teams notification
+    - name: Send Teams Notification
+      run: |
+        REPORT_URL="${{ steps.deployment.outputs.page_url }}"
+
+        echo "Report URL: $REPORT_URL"
+
+        curl -X POST "${{ secrets.TEAMS_WEBHOOK_URL }}" \
+          -H "Content-Type: application/json" \
+          -d "{
+            \"@type\": \"MessageCard\",
+            \"@context\": \"http://schema.org/extensions\",
+            \"summary\": \"Test Report\",
+            \"themeColor\": \"0078D7\",
+            \"title\": \"🚀 Test Execution Completed\",
+            \"potentialAction\": [{
+              \"@type\": \"OpenUri\",
+              \"name\": \"View Report\",
+              \"targets\": [{
+                \"os\": \"default\",
+                \"uri\": \"$REPORT_URL\"
               }]
-            }"
+            }]
+          }"
