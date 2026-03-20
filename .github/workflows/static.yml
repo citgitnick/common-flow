@@ -127,7 +127,7 @@ jobs:
             if [ "$fname" != "index.html" ]; then
               echo "<div class=\"card\">
                       <div>$fname</div>
-                      <a class=\"btn\" href=\"$fname\">View Report</a>
+                      <a class=\"btn\" href=\"$fname\" target=\"_blank\">View Report</a>
                     </div>" >> pages/index.html
             fi
           done
